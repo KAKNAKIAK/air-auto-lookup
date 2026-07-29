@@ -127,7 +127,12 @@ class InstallerApp:
             self.root.update_idletasks()
 
             with zipfile.ZipFile(payload_zip, "r") as zip_ref:
-                zip_ref.extractall(install_dir)
+                for member in zip_ref.infolist():
+                    target_file = install_dir / member.filename
+                    if member.filename == "hotels-manifest.json" or member.filename.endswith("/hotels-manifest.json"):
+                        if target_file.exists():
+                            continue
+                    zip_ref.extract(member, install_dir)
 
             self.progress_var.set(70)
             self.status_var.set("노선 매니페스트 및 환경 설정 중...")

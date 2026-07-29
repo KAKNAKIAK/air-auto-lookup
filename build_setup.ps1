@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
 
-$Version = "v1.0.1"
+$Version = "v1.0.5"
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SourceDir = Join-Path $ProjectRoot "source"
@@ -80,7 +80,7 @@ try {
     
     $PayloadSrc = Join-Path $TempInstallerDir "payload"
     New-Item -ItemType Directory -Force -Path $PayloadSrc | Out-Null
-    Copy-Item -Path "$TempPortableDist\*" -Destination $PayloadSrc -Recurse -Force -Exclude "output", "logs"
+    Copy-Item -Path "$TempPortableDist\*" -Destination $PayloadSrc -Recurse -Force -Exclude "hotels-manifest.json", "output", "logs"
     
     $PayloadZip = Join-Path $TempInstallerDir "payload.zip"
     Compress-Archive -Path "$PayloadSrc\*" -DestinationPath $PayloadZip -Force

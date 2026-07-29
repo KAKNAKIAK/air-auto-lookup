@@ -8,6 +8,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -21,6 +22,8 @@ import urllib.request
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
+
+from fare_store import load_fare_snapshot
 
 
 def app_base_dir() -> Path:
@@ -80,8 +83,7 @@ LOGS_DIR = BASE_DIR / "output" / "logs"
 RAW_DIR = BASE_DIR / "output" / "raw"
 RAW_STORE_FILENAME = "raw-store.sqlite"
 LOCAL_FARE_CACHE_PATH = BASE_DIR / "output" / "cache" / "fares_snapshot.json"
-ERP_UPDATER_DIR = Path(r"G:\내 드라이브\안티그래비티\erp_updater")
-ERP_UPDATER_FARE_CACHE_PATH = ERP_UPDATER_DIR / "cache" / "fares_snapshot.json"
+FARE_SEED_CACHE_PATH = resource_path("fares_snapshot.seed.json")
 AUTO_COLLECT_BATCH_SIZE = 91
 TOPAS_DEBUG_URL = "https://www.topassellconnect.com/"
 TOPAS_DEBUG_PORT = 9222
@@ -223,7 +225,7 @@ def load_flight_master_items_from_path(path: Path) -> list[dict[str, object]]:
     return [dict(item) for item in json.loads(payload)]
 
 
-APP_VERSION = "v1.0.1"
+APP_VERSION = "v1.0.5"
 
 
 def ensure_hotels_manifest() -> Path:
@@ -1749,12 +1751,11 @@ def load_actual_fare_snapshot(
     prefer_cache_hours: float = 12,
 ) -> dict[str, object]:
     target_cache = Path(cache_path or LOCAL_FARE_CACHE_PATH)
-    warning = ""
-    try:
-        if str(ERP_UPDATER_DIR) not in sys.path:
-            sys.path.insert(0, str(ERP_UPDATER_DIR))
-        from fare.store import load_fare_snapshot
+    if not target_cache.exists() and FARE_SEED_CACHE_PATH.exists():
+        target_cache.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(FARE_SEED_CACHE_PATH, target_cache)
 
+    try:
         snapshot = load_fare_snapshot(
             {},
             cache_path=target_cache,
@@ -1769,19 +1770,7 @@ def load_actual_fare_snapshot(
             "warning": snapshot.warning or "",
         }
     except Exception as exc:
-        warning = f"운임 DB 최신 로드 실패, 기존 erp_updater 캐시 사용: {exc}"
-
-    if not ERP_UPDATER_FARE_CACHE_PATH.exists():
-        raise RuntimeError(warning)
-    payload = json.loads(ERP_UPDATER_FARE_CACHE_PATH.read_text(encoding="utf-8"))
-    return {
-        "fares": list(payload.get("fares", [])),
-        "seasons": list(payload.get("seasons", [])),
-        "loadedAt": payload.get("loadedAt") or payload.get("loaded_at") or "",
-        "source": "erp_updater_cache",
-        "cachePath": str(ERP_UPDATER_FARE_CACHE_PATH),
-        "warning": warning,
-    }
+        raise RuntimeError(f"앱 내 운임 DB를 불러오지 못했습니다: {exc}") from exc
 
 
 def build_fare_map(fares: list[dict[str, object]], route: str) -> dict[str, dict[str, float]]:
@@ -2995,6 +2984,7 @@ class AirAutoLookupApp:
         self._log(f"마스터 {len(self.masters)}개 로드 완료")
         self.log_current_run_summary()
         self.refresh_progress_panel()
+        self.root.after(1000, self.start_startup_update_check)
 
     def _build_ui(self) -> None:
         outer = ttk.Frame(self.root, padding=12)
@@ -3044,8 +3034,6 @@ class AirAutoLookupApp:
         )
         self.excel_open_button.configure(state=tk.DISABLED)
         self._add_action_button(control, "브라우저 실행", self.open_topas_debug_browser, row=0, column=11, padx=(6, 0))
-        self._add_action_button(control, "업데이트 확인", self.check_app_update, row=0, column=12, padx=(6, 0))
-        control.columnconfigure(13, weight=1)
         control.columnconfigure(12, weight=1)
 
         route_box = ttk.LabelFrame(auto_tab, text="노선 카테고리", padding=8)
@@ -3776,6 +3764,38 @@ class AirAutoLookupApp:
             self.excel_open_button.configure(state=tk.NORMAL if self.has_calculated_excel() else tk.DISABLED)
 
     
+    
+    def start_startup_update_check(self) -> None:
+        def background_check() -> None:
+            try:
+                import update_client
+
+                manifest = update_client.fetch_available_update(current_version=APP_VERSION, timeout=5.0)
+                if manifest and not self._command_running:
+                    self.root.after(0, lambda: self.prompt_auto_update(manifest))
+            except Exception:
+                pass
+
+        threading.Thread(target=background_check, daemon=True).start()
+
+    def prompt_auto_update(self, manifest: dict[str, str]) -> None:
+        try:
+            import update_client
+
+            latest_ver = manifest.get("version", "최신 버전")
+            notes = manifest.get("release_notes") or "새 버전이 출시되었습니다."
+            msg = f"새로운 버전({latest_ver})이 출시되었습니다.\n\n[패치 노트]\n{notes}\n\n지금 업데이트를 다운로드하고 설치할까요?"
+
+            if messagebox.askyesno("자동 업데이트 알림", msg):
+                self._log(f"새 버전 {latest_ver} 자동 업데이트 진행 중...")
+                installer_path = update_client.download_installer(manifest)
+                self._log(f"다운로드 완료: {installer_path}")
+                update_client.run_installer_and_exit(installer_path)
+                self.root.destroy()
+        except Exception as exc:
+            messagebox.showerror("자동 업데이트 실패", str(exc))
+            self._log(f"자동 업데이트 실패: {exc}")
+
     def check_app_update(self) -> None:
         try:
             import update_client

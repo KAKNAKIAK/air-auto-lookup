@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_submodules
 
-hiddenimports = ['topas_live_collector']
+hiddenimports = ['topas_live_collector', 'update_client', 'fare_store']
 hiddenimports += collect_submodules('selenium')
 
 
@@ -9,7 +9,7 @@ a = Analysis(
     ['air_auto_lookup_mvp.py'],
     pathex=[],
     binaries=[],
-    datas=[('flight-master.mjs', '.'), ('assets', 'assets')],
+    datas=[('flight-master.mjs', '.'), ('fares_snapshot.seed.json', '.'), ('assets', 'assets')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
