@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import base64
 import subprocess
 import tempfile
 import time
@@ -14,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
-DEFAULT_LATEST_URL = "https://raw.githubusercontent.com/KAKNAKIAK/air-auto-lookup/main/latest.json"
+DEFAULT_LATEST_URL = "https://api.github.com/repos/KAKNAKIAK/air-auto-lookup/contents/latest.json?ref=main"
 DEFAULT_USER_AGENT = "AirAutoLookupUpdateClient/1.0"
 MAX_MANIFEST_BYTES = 1024 * 1024
 
@@ -58,6 +59,9 @@ def fetch_latest_manifest(latest_url: str = DEFAULT_LATEST_URL, timeout: float =
     except Exception as exc:
         raise UpdateError(f"업데이트 정보를 확인하지 못했습니다: {exc}") from exc
 
+    if isinstance(payload, dict) and payload.get("encoding") == "base64" and isinstance(payload.get("content"), str):
+        decoded = base64.b64decode(payload["content"].replace("\n", ""))
+        payload = json.loads(decoded.decode("utf-8-sig"))
     if not isinstance(payload, dict):
         raise UpdateError("업데이트 정보 형식이 올바르지 않습니다.")
     version = str(payload.get("version") or "").strip()

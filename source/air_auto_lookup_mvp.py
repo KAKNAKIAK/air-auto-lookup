@@ -225,7 +225,7 @@ def load_flight_master_items_from_path(path: Path) -> list[dict[str, object]]:
     return [dict(item) for item in json.loads(payload)]
 
 
-APP_VERSION = "v1.0.5"
+APP_VERSION = "v1.0.6"
 
 
 def ensure_hotels_manifest() -> Path:

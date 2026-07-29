@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
 
-$Version = "v1.0.5"
+$Version = "v1.0.6"
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SourceDir = Join-Path $ProjectRoot "source"
@@ -69,11 +69,13 @@ try {
     if (-not (Test-Path -LiteralPath $ReleaseRoot)) {
         New-Item -ItemType Directory -Force -Path $ReleaseRoot | Out-Null
     }
-    if (Test-Path -LiteralPath $ReleaseDir) {
-        Remove-Item -LiteralPath $ReleaseDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
     New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
-    Copy-Item -Path "$TempPortableDist\*" -Destination $ReleaseDir -Recurse -Force
+    try {
+        Copy-Item -Path "$TempPortableDist\*" -Destination $ReleaseDir -Recurse -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "실행 중인 앱 때문에 휴대용 release 폴더 갱신은 건너뜁니다. 셋업 파일 생성과 GitHub 배포는 계속 진행합니다."
+    }
 
     Write-Host "[3/4] 셋업 페이로드 패키징 중..."
     Reset-TempDir -Path $TempInstallerDir
