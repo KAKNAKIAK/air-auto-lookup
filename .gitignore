@@ -1,0 +1,12 @@
+build/
+build_*/
+dist/
+dist_*/
+release/
+archive/
+output/
+__pycache__/
+*.pyc
+.venv/
+*.tmp
+*.log
