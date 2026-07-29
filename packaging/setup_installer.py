@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -45,6 +46,22 @@ def ensure_empty_hotels_manifest(install_dir: Path) -> Path:
         }
         manifest_path.write_text(json.dumps(empty_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return manifest_path
+
+
+def extract_payload_member(zip_ref: zipfile.ZipFile, member: zipfile.ZipInfo, install_dir: Path) -> None:
+    """실행 중인 이전 앱이 종료될 때까지 잠긴 파일 교체를 재시도한다."""
+    deadline = time.monotonic() + 30
+    while True:
+        try:
+            zip_ref.extract(member, install_dir)
+            return
+        except PermissionError as exc:
+            if time.monotonic() >= deadline:
+                raise RuntimeError(
+                    "실행 중인 항공자동조회가 종료되지 않아 업데이트할 수 없습니다. "
+                    "프로그램을 모두 닫은 뒤 다시 설치해 주세요."
+                ) from exc
+            time.sleep(0.5)
 
 
 class InstallerApp:
@@ -132,7 +149,7 @@ class InstallerApp:
                     if member.filename == "hotels-manifest.json" or member.filename.endswith("/hotels-manifest.json"):
                         if target_file.exists():
                             continue
-                    zip_ref.extract(member, install_dir)
+                    extract_payload_member(zip_ref, member, install_dir)
 
             self.progress_var.set(70)
             self.status_var.set("노선 매니페스트 및 환경 설정 중...")
