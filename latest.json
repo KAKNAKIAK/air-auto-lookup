@@ -1,6 +1,6 @@
 {
-    "download_url":  "https://github.com/KAKNAKIAK/air-auto-lookup/releases/download/v1.0.7/AirAutoLookup_Setup_v1.0.7.exe",
-    "sha256":  "F90FCAB216862B74C768DF980B0C9C6965E81152BDD5E0DEA950F53435719D2D",
-    "version":  "v1.0.7",
-    "release_notes":  "항공자동조회 v1.0.7 릴리즈 (빈 노선 매니페스트 기본 적용)"
+    "download_url":  "https://github.com/KAKNAKIAK/air-auto-lookup/releases/download/v1.0.8/AirAutoLookup_Setup_v1.0.8.exe",
+    "sha256":  "04C119337675D5D1882FE59E5B082819CCB390336209657297218A0FB53729C1",
+    "version":  "v1.0.8",
+    "release_notes":  "항공자동조회 v1.0.8 릴리즈 (빈 노선 매니페스트 기본 적용)"
 }
