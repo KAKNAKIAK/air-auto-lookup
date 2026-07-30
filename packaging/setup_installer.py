@@ -39,12 +39,69 @@ def create_shortcut(target_exe: Path, shortcut_path: Path, icon_path: Path | Non
 def ensure_empty_hotels_manifest(install_dir: Path) -> Path:
     manifest_path = install_dir / "hotels-manifest.json"
     if not manifest_path.exists():
-        empty_manifest = {
+        initial_manifest = {
             "schema": "air-auto-lookup-flight-masters-v1",
-            "updatedAt": "2026-07-29T00:00:00",
-            "flightMasters": [],
+            "updatedAt": "2026-07-30T00:00:00",
+            "flightMasters": [
+            {
+                        "key": "ICNGUM_LJ915_916",
+                        "rawKey": "ICNGUM_LJ915/6",
+                        "origin": "ICN",
+                        "destination": "GUM",
+                        "route": "ICN-GUM",
+                        "airline": "LJ",
+                        "depFlight": "LJ915",
+                        "retFlight": "LJ916",
+                        "retDepartureTime": null,
+                        "defaultProductDays": 5,
+                        "fareRoute": "ICN-GUM-LJ",
+                        "enabled": true
+            },
+            {
+                        "key": "ICNGUM_LJ915_918",
+                        "rawKey": "ICNGUM_LJ915/8",
+                        "origin": "ICN",
+                        "destination": "GUM",
+                        "route": "ICN-GUM",
+                        "airline": "LJ",
+                        "depFlight": "LJ915",
+                        "retFlight": "LJ918",
+                        "retDepartureTime": null,
+                        "defaultProductDays": 5,
+                        "fareRoute": "ICN-GUM-LJ",
+                        "enabled": true
+            },
+            {
+                        "key": "ICNGUM_LJ917_916",
+                        "rawKey": "ICNGUM_LJ917/6",
+                        "origin": "ICN",
+                        "destination": "GUM",
+                        "route": "ICN-GUM",
+                        "airline": "LJ",
+                        "depFlight": "LJ917",
+                        "retFlight": "LJ917",
+                        "retDepartureTime": null,
+                        "defaultProductDays": 5,
+                        "fareRoute": "ICN-GUM-LJ",
+                        "enabled": true
+            },
+            {
+                        "key": "ICNGUM_LJ917_918",
+                        "rawKey": "ICNGUM_LJ917/8",
+                        "origin": "ICN",
+                        "destination": "GUM",
+                        "route": "ICN-GUM",
+                        "airline": "LJ",
+                        "depFlight": "LJ917",
+                        "retFlight": "LJ918",
+                        "retDepartureTime": null,
+                        "defaultProductDays": 5,
+                        "fareRoute": "ICN-GUM-LJ",
+                        "enabled": true
+            }
+],
         }
-        manifest_path.write_text(json.dumps(empty_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        manifest_path.write_text(json.dumps(initial_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return manifest_path
 
 

@@ -225,13 +225,73 @@ def load_flight_master_items_from_path(path: Path) -> list[dict[str, object]]:
     return [dict(item) for item in json.loads(payload)]
 
 
-APP_VERSION = "v1.0.7"
+APP_VERSION = "v1.0.8"
+
+
+DEFAULT_INITIAL_MASTERS = [
+    {
+        "key": "ICNGUM_LJ915_916",
+        "rawKey": "ICNGUM_LJ915/6",
+        "origin": "ICN",
+        "destination": "GUM",
+        "route": "ICN-GUM",
+        "airline": "LJ",
+        "depFlight": "LJ915",
+        "retFlight": "LJ916",
+        "retDepartureTime": None,
+        "defaultProductDays": 5,
+        "fareRoute": "ICN-GUM-LJ",
+        "enabled": True
+    },
+    {
+        "key": "ICNGUM_LJ915_918",
+        "rawKey": "ICNGUM_LJ915/8",
+        "origin": "ICN",
+        "destination": "GUM",
+        "route": "ICN-GUM",
+        "airline": "LJ",
+        "depFlight": "LJ915",
+        "retFlight": "LJ918",
+        "retDepartureTime": None,
+        "defaultProductDays": 5,
+        "fareRoute": "ICN-GUM-LJ",
+        "enabled": True
+    },
+    {
+        "key": "ICNGUM_LJ917_916",
+        "rawKey": "ICNGUM_LJ917/6",
+        "origin": "ICN",
+        "destination": "GUM",
+        "route": "ICN-GUM",
+        "airline": "LJ",
+        "depFlight": "LJ917",
+        "retFlight": "LJ917",
+        "retDepartureTime": None,
+        "defaultProductDays": 5,
+        "fareRoute": "ICN-GUM-LJ",
+        "enabled": True
+    },
+    {
+        "key": "ICNGUM_LJ917_918",
+        "rawKey": "ICNGUM_LJ917/8",
+        "origin": "ICN",
+        "destination": "GUM",
+        "route": "ICN-GUM",
+        "airline": "LJ",
+        "depFlight": "LJ917",
+        "retFlight": "LJ918",
+        "retDepartureTime": None,
+        "defaultProductDays": 5,
+        "fareRoute": "ICN-GUM-LJ",
+        "enabled": True
+    }
+]
 
 
 def ensure_hotels_manifest() -> Path:
     if HOTELS_MANIFEST_PATH.exists():
         return HOTELS_MANIFEST_PATH
-    write_hotels_manifest([])
+    write_hotels_manifest(DEFAULT_INITIAL_MASTERS)
     return HOTELS_MANIFEST_PATH
 
 
