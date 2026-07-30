@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
 
-$Version = "v1.0.8"
+$Version = "v1.0.9"
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SourceDir = Join-Path $ProjectRoot "source"
@@ -57,18 +57,7 @@ try {
         throw "빌드된 실행 파일을 찾지 못했습니다: $ExeFile"
     }
 
-    # 예시 샘플 4개 포함 hotels-manifest.json 보장
-    $InitialManifest = @{
-        schema = "air-auto-lookup-flight-masters-v1"
-        updatedAt = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss")
-        flightMasters = @(
-            @{ key="ICNGUM_LJ915_916"; rawKey="ICNGUM_LJ915/6"; origin="ICN"; destination="GUM"; route="ICN-GUM"; airline="LJ"; depFlight="LJ915"; retFlight="LJ916"; retDepartureTime=$null; defaultProductDays=5; fareRoute="ICN-GUM-LJ"; enabled=$true },
-            @{ key="ICNGUM_LJ915_918"; rawKey="ICNGUM_LJ915/8"; origin="ICN"; destination="GUM"; route="ICN-GUM"; airline="LJ"; depFlight="LJ915"; retFlight="LJ918"; retDepartureTime=$null; defaultProductDays=5; fareRoute="ICN-GUM-LJ"; enabled=$true },
-            @{ key="ICNGUM_LJ917_916"; rawKey="ICNGUM_LJ917/6"; origin="ICN"; destination="GUM"; route="ICN-GUM"; airline="LJ"; depFlight="LJ917"; retFlight="LJ917"; retDepartureTime=$null; defaultProductDays=5; fareRoute="ICN-GUM-LJ"; enabled=$true },
-            @{ key="ICNGUM_LJ917_918"; rawKey="ICNGUM_LJ917/8"; origin="ICN"; destination="GUM"; route="ICN-GUM"; airline="LJ"; depFlight="LJ917"; retFlight="LJ918"; retDepartureTime=$null; defaultProductDays=5; fareRoute="ICN-GUM-LJ"; enabled=$true }
-        )
-    } | ConvertTo-Json -Depth 5
-    [System.IO.File]::WriteAllText((Join-Path $TempPortableDist "hotels-manifest.json"), $InitialManifest, $Utf8NoBom)
+# 기존 hotels-manifest.json 보존 (빌드 과정에서 덮어쓰지 않음)
 
     # release 디렉토리 갱신 및 동기화
     if (-not (Test-Path -LiteralPath $ReleaseRoot)) {

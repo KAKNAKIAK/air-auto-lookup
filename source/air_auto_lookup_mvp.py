@@ -225,7 +225,7 @@ def load_flight_master_items_from_path(path: Path) -> list[dict[str, object]]:
     return [dict(item) for item in json.loads(payload)]
 
 
-APP_VERSION = "v1.0.8"
+APP_VERSION = "v1.0.9"
 
 
 DEFAULT_INITIAL_MASTERS = [
